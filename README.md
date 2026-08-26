@@ -1,18 +1,18 @@
 # DaoMai Multi-Server ADB
 
-[Tiáº¿ng Viá»‡t](#tiáº¿ng-viá»‡t) Â· [English](#english) Â· [ä¸­æ–‡](#ä¸­æ–‡)
+[Tiếng Việt](#tiếng-việt) · [English](#english) · [中文](#中文)
 
 Aggregate local and remote Android devices from multiple ADB servers into one fast, compatible
 ADB endpoint for scrcpy, Android Studio, automation, file transfer, shell, and port forwarding.
 
-## Tiáº¿ng Viá»‡t
+## Tiếng Việt
 
-Má»™t source ADB duy nháº¥t build ra `adb.exe` Windows vÃ  `adb` Linux. CÃ¹ng binary cÃ³ thá»ƒ cháº¡y nhÆ°
-NODE bÃ¬nh thÆ°á»ng hoáº·c MAIN aggregator dá»±a trÃªn file cáº¥u hÃ¬nh náº±m cáº¡nh executable.
+Một source ADB duy nhất build ra `adb.exe` Windows và `adb` Linux. Cùng binary có thể chạy như
+NODE bình thường hoặc MAIN aggregator dựa trên file cấu hình nằm cạnh executable.
 
-> Tráº¡ng thÃ¡i: listener LAN, firewall, parser/whitelist, multi-port, app quáº£n lÃ½ LAN, snapshot
-> aggregation, virtual transport ID vÃ  smart-socket stream relay Ä‘Ã£ Ä‘Æ°á»£c triá»ƒn khai. Xem káº¿t quáº£
-> build/live test vÃ  cÃ¡c soak test cÃ²n láº¡i trong `ADB_MULTI_SERVER_PROGRESS.md`.
+> Trạng thái: listener LAN, firewall, parser/whitelist, multi-port, app quản lý LAN, snapshot
+> aggregation, virtual transport ID và smart-socket stream relay đã được triển khai. Xem kết quả
+> build/live test và các soak test còn lại trong `ADB_MULTI_SERVER_PROGRESS.md`.
 
 ## Package
 
@@ -23,25 +23,25 @@ adb.exe
 AdbWinApi.dll
 AdbWinUsbApi.dll
 DaoMaiAdbManager.exe
-server.txt        # chá»‰ Ä‘áº·t á»Ÿ MAIN
-remote.txt        # tÃ¹y chá»n á»Ÿ NODE Ä‘á»ƒ whitelist device
+server.txt        # chỉ đặt ở MAIN
+remote.txt        # tùy chọn ở NODE để whitelist device
 ```
 
 Linux:
 
 ```text
 adb
-server.txt        # chá»‰ Ä‘áº·t á»Ÿ MAIN
-remote.txt        # tÃ¹y chá»n á»Ÿ NODE
+server.txt        # chỉ đặt ở MAIN
+remote.txt        # tùy chọn ở NODE
 ```
 
-File Ä‘Æ°á»£c tÃ¬m theo thÆ° má»¥c chá»©a executable, khÃ´ng phá»¥ thuá»™c current working directory. Cáº£ LF
-(Linux) vÃ  CRLF (Windows), dÃ²ng trá»‘ng, whitespace vÃ  comment báº¯t Ä‘áº§u báº±ng `#` Ä‘á»u Ä‘Æ°á»£c há»— trá»£.
+File được tìm theo thư mục chứa executable, không phụ thuộc current working directory. Cả LF
+(Linux) và CRLF (Windows), dòng trống, whitespace và comment bắt đầu bằng `#` đều được hỗ trợ.
 
 ## NODE / REMOTE
 
-KhÃ´ng Ä‘áº·t `server.txt`. ADB giá»¯ USB, TCP, emulator vÃ  toÃ n bá»™ command stock. Server máº·c Ä‘á»‹nh bind
-`0.0.0.0:PORT`, trong khi client trÃªn cÃ¹ng mÃ¡y váº«n káº¿t ná»‘i localhost.
+Không đặt `server.txt`. ADB giữ USB, TCP, emulator và toàn bộ command stock. Server mặc định bind
+`0.0.0.0:PORT`, trong khi client trên cùng máy vẫn kết nối localhost.
 
 ```powershell
 adb kill-server
@@ -60,7 +60,7 @@ The normal header includes `total`, direct MAIN `usb`, LAN/NODE `lan`, online `o
 `off`, recovery `rec`, and all remaining states as `other`. `adb devices -d` groups devices under
 `May Hien Tai` for MAIN-local transports and under each configured NODE endpoint.
 
-Khi server thá»±c sá»± Ä‘Æ°á»£c spawn, output cho biáº¿t mode vÃ  má»i IPv4 LAN thá»±c táº¿:
+Khi server thực sự được spawn, output cho biết mode và mọi IPv4 LAN thực tế:
 
 ```text
 * daemon not running; starting now at tcp:5037
@@ -69,31 +69,31 @@ Khi server thá»±c sá»± Ä‘Æ°á»£c spawn, output cho biáº¿t mode v
 * daemon started successfully
 ```
 
-Windows server thá»­ táº¡o firewall rule `DaoMai ADB LAN PORT`: inbound TCP Ä‘Ãºng port, remote
-`LocalSubnet`, profile Domain/Private. Rule Ä‘Æ°á»£c kiá»ƒm tra idempotent, khÃ´ng má»Ÿ Any/Public, khÃ´ng táº¯t
-firewall vÃ  khÃ´ng tá»± báº­t UAC. Náº¿u thiáº¿u Administrator permission, lá»—i Ä‘Æ°á»£c ghi vÃ o ADB log vÃ  server
-váº«n cháº¡y.
+Windows server thử tạo firewall rule `DaoMai ADB LAN PORT`: inbound TCP đúng port, remote
+`LocalSubnet`, profile Domain/Private. Rule được kiểm tra idempotent, không mở Any/Public, không tắt
+firewall và không tự bật UAC. Nếu thiếu Administrator permission, lỗi được ghi vào ADB log và server
+vẫn chạy.
 
-### Giá»›i háº¡n device báº±ng remote.txt
+### Giới hạn device bằng remote.txt
 
-KhÃ´ng cÃ³ `remote.txt` nghÄ©a lÃ  cho phÃ©p táº¥t cáº£ device nhÆ° stock. Náº¿u file tá»“n táº¡i, má»—i dÃ²ng lÃ  má»™t
-serial hoáº·c USB device path Ä‘Æ°á»£c phÃ©p; file rá»—ng nghÄ©a lÃ  khÃ´ng nháº­n device nÃ o.
+Không có `remote.txt` nghĩa là cho phép tất cả device như stock. Nếu file tồn tại, mỗi dòng là một
+serial hoặc USB device path được phép; file rỗng nghĩa là không nhận device nào.
 
 ```text
-# NhÃ³m mÃ¡y cho process nÃ y
+# Nhóm máy cho process này
 5200785ab8011549
 R58A001ABC
 10.10.2.1:5555
 emulator-5554
 ```
 
-Whitelist Ä‘Æ°á»£c kiá»ƒm tra trÆ°á»›c khi USB transport Ä‘Æ°á»£c claim, nhá» Ä‘Ã³ cÃ¡c ADB process/port khÃ¡c nhau
-khÃ´ng giá»¯ nháº§m toÃ n bá»™ USB. TCP device vÃ  emulator cÅ©ng chá»‹u cÃ¹ng whitelist. File Ä‘Æ°á»£c watch má»—i
-giÃ¢y; transport bá»‹ xÃ³a khá»i whitelist sáº½ Ä‘Æ°á»£c kick trÃªn ADB fdevent thread.
+Whitelist được kiểm tra trước khi USB transport được claim, nhờ đó các ADB process/port khác nhau
+không giữ nhầm toàn bộ USB. TCP device và emulator cũng chịu cùng whitelist. File được watch mỗi
+giây; transport bị xóa khỏi whitelist sẽ được kick trên ADB fdevent thread.
 
 ## MAIN / AGGREGATOR
 
-Äáº·t `server.txt` cáº¡nh ADB:
+Đặt `server.txt` cạnh ADB:
 
 ```text
 # DaoMai ADB Remote Servers
@@ -104,10 +104,10 @@ giÃ¢y; transport bá»‹ xÃ³a khá»i whitelist sáº½ Ä‘Æ°á»£c 
 adb-node-01:5037
 ```
 
-Má»—i `HOST:PORT` lÃ  má»™t node Ä‘á»™c láº­p; endpoint trÃ¹ng hoÃ n toÃ n Ä‘Æ°á»£c loáº¡i bá». Hostname/IPv4 vÃ  port
-1-65535 Ä‘Æ°á»£c validate. DÃ²ng sai Ä‘Æ°á»£c log rá»“i bá» qua, khÃ´ng lÃ m ADB crash.
+Mỗi `HOST:PORT` là một node độc lập; endpoint trùng hoàn toàn được loại bỏ. Hostname/IPv4 và port
+1-65535 được validate. Dòng sai được log rồi bỏ qua, không làm ADB crash.
 
-Startup MAIN hiá»ƒn thá»‹ trá»±c tiáº¿p cÃ¡c endpoint:
+Startup MAIN hiển thị trực tiếp các endpoint:
 
 ```text
 * daemon not running; starting now at tcp:5037
@@ -118,18 +118,18 @@ Startup MAIN hiá»ƒn thá»‹ trá»±c tiáº¿p cÃ¡c endpoint:
 * daemon started successfully
 ```
 
-Manager ná»n cache Ä‘áº§y Ä‘á»§ dÃ²ng `devices-l`: serial, tráº¡ng thÃ¡i `device`, `offline`,
-`unauthorized`, `recovery`, `sideload`, `bootloader`, product/model/device vÃ  virtual transport ID.
-Node cháº¿t khÃ´ng Ä‘Æ°á»£c lÃ m `adb devices` block; retry/reconnect vÃ  thay Ä‘á»•i device Ä‘Æ°á»£c Ä‘áº©y tá»›i cÃ¡c
+Manager nền cache đầy đủ dòng `devices-l`: serial, trạng thái `device`, `offline`,
+`unauthorized`, `recovery`, `sideload`, `bootloader`, product/model/device và virtual transport ID.
+Node chết không được làm `adb devices` block; retry/reconnect và thay đổi device được đẩy tới các
 variant `track-devices`.
 
-Náº¿u MAIN Ä‘Ã£ cÃ³ local TCP serial nhÆ° `10.10.2.1:5555`, báº£n cÃ¹ng serial do remote bÃ¡o sáº½ bá»‹ bá» khá»i
-aggregate Ä‘á»ƒ khÃ´ng relay vÃ²ng vÃ  khÃ´ng tÄƒng táº£i. Duplicate USB serial giá»¯a nhiá»u node sáº½ dÃ¹ng alias
-á»•n Ä‘á»‹nh rá»“i Ä‘Æ°á»£c dá»‹ch ngÆ°á»£c vá» serial tháº­t khi route upstream.
+Nếu MAIN đã có local TCP serial như `10.10.2.1:5555`, bản cùng serial do remote báo sẽ bị bỏ khỏi
+aggregate để không relay vòng và không tăng tải. Duplicate USB serial giữa nhiều node sẽ dùng alias
+ổn định rồi được dịch ngược về serial thật khi route upstream.
 
-## Nhiá»u process / nhiá»u port
+## Nhiều process / nhiều port
 
-Stock client socket selection Ä‘Æ°á»£c giá»¯ láº¡i vÃ  má»—i port lÃ  má»™t server process riÃªng:
+Stock client socket selection được giữ lại và mỗi port là một server process riêng:
 
 ```powershell
 D:\ADB_Group_A\adb.exe -P 5037 devices
@@ -137,12 +137,12 @@ D:\ADB_Group_B\adb.exe -P 5038 devices
 D:\ADB_Group_C\adb.exe -P 5039 devices
 ```
 
-Má»—i thÆ° má»¥c cÃ³ thá»ƒ chá»©a `remote.txt`/`server.txt` riÃªng. Banner LAN vÃ  Windows firewall rule dÃ¹ng
-Ä‘Ãºng port truyá»n qua `-P`, khÃ´ng hardcode 5037.
+Mỗi thư mục có thể chứa `remote.txt`/`server.txt` riêng. Banner LAN và Windows firewall rule dùng
+đúng port truyền qua `-P`, không hardcode 5037.
 
-## Help vÃ  UTF-8
+## Help và UTF-8
 
-CÃ¡c form sau Ä‘á»u hiá»‡n banner DaoMai vÃ  hÆ°á»›ng dáº«n multi-server:
+Các form sau đều hiện banner DaoMai và hướng dẫn multi-server:
 
 ```powershell
 adb help
@@ -152,23 +152,23 @@ adb /?
 adb -P 5038 help
 ```
 
-TrÃªn Windows, help Ä‘áº·t console output code page UTF-8 trÆ°á»›c khi in tiáº¿ng Viá»‡t.
+Trên Windows, help đặt console output code page UTF-8 trước khi in tiếng Việt.
 
 ## DaoMai ADB LAN Manager
 
-Source náº±m táº¡i `tools/daomai_adb_manager`. ÄÃ¢y lÃ  app C++ Win32 native, build thÃ nh má»™t
-`DaoMaiAdbManager.exe`, khÃ´ng cáº§n Python/.NET/Qt.
+Source nằm tại `tools/daomai_adb_manager`. Đây là app C++ Win32 native, build thành một
+`DaoMaiAdbManager.exe`, không cần Python/.NET/Qt.
 
-- Combobox IP/hostname, Scan LAN, Edit/Save vÃ  Ã´ port.
-- Add IP/Remove IP cáº­p nháº­t `server.txt` cáº¡nh app/ADB.
-- Scan subnet báº±ng bounded worker pool, UI khÃ´ng lÃ m network I/O.
-- Chá»‰ endpoint má»Ÿ TCP port má»›i Ä‘Æ°á»£c query báº±ng `adb -H IP -P PORT devices -l`.
-- Grid hiá»ƒn thá»‹ tá»•ng theo endpoint vÃ  chi tiáº¿t serial/state/model.
-- Cáº¥u hÃ¬nh UI lÆ°u vÃ o `manager_config.ini` cáº¡nh EXE.
+- Combobox IP/hostname, Scan LAN, Edit/Save và ô port.
+- Add IP/Remove IP cập nhật `server.txt` cạnh app/ADB.
+- Scan subnet bằng bounded worker pool, UI không làm network I/O.
+- Chỉ endpoint mở TCP port mới được query bằng `adb -H IP -P PORT devices -l`.
+- Grid hiển thị tổng theo endpoint và chi tiết serial/state/model.
+- Cấu hình UI lưu vào `manager_config.ini` cạnh EXE.
 
 ## Build
 
-Tree build hiá»‡n dÃ¹ng AOSP 14 AP2A vÃ  Windows host-cross:
+Tree build hiện dùng AOSP 14 AP2A và Windows host-cross:
 
 ```bash
 cd /media/daomai/DATA/android/AOSP_14_STOCK
@@ -177,27 +177,27 @@ lunch aosp_x86_64-ap2a-eng
 HOST_CROSS_OS=windows m adb adb_test -j55
 ```
 
-Artifact debug `eng` cÃ³ symbol nÃªn lá»›n (khoáº£ng 62 MiB Windows). Package phÃ¡t hÃ nh pháº£i strip:
+Artifact debug `eng` có symbol nên lớn (khoảng 62 MiB Windows). Package phát hành phải strip:
 
 ```bash
 prebuilts/clang/host/linux-x86/clang-r510928/bin/llvm-strip path/to/adb.exe
 prebuilts/clang/host/linux-x86/clang-r510928/bin/llvm-strip path/to/adb
 ```
 
-Báº£n Ä‘Ã£ strip hiá»‡n khoáº£ng 5.6 MiB Windows vÃ  6.5 MiB Linux. KhÃ´ng strip DLL báº±ng cÃ¡ch tÃ¹y tiá»‡n náº¿u
-chÆ°a kiá»ƒm tra PE exports.
+Bản đã strip hiện khoảng 5.6 MiB Windows và 6.5 MiB Linux. Không strip DLL bằng cách tùy tiện nếu
+chưa kiểm tra PE exports.
 
-## Test báº¯t buá»™c trÆ°á»›c release final
+## Test bắt buộc trước release final
 
-- NODE: local USB/TCP/emulator, shell, push/pull lá»›n, install, logcat, forward/reverse, scrcpy.
+- NODE: local USB/TCP/emulator, shell, push/pull lớn, install, logcat, forward/reverse, scrcpy.
 - LAN: listener `0.0.0.0:PORT`, direct `adb -H NODE -P PORT devices`, firewall LocalSubnet.
-- MAIN: local + má»i remote trong má»™t `devices`/`devices-l`; `-s` vÃ  `-t` route Ä‘Ãºng.
-- Long stream: shell/logcat/scrcpy vÃ  file lá»›n khÃ´ng cÃ³ transfer timeout.
-- Node cháº¿t/reconnect, cáº¯m/rÃºt phone, hot reload config, duplicate serial vÃ  local TCP collision.
-- Track devices: short, long, proto-text vÃ  proto-binary mÃ  branch há»— trá»£.
+- MAIN: local + mọi remote trong một `devices`/`devices-l`; `-s` và `-t` route đúng.
+- Long stream: shell/logcat/scrcpy và file lớn không có transfer timeout.
+- Node chết/reconnect, cắm/rút phone, hot reload config, duplicate serial và local TCP collision.
+- Track devices: short, long, proto-text và proto-binary mà branch hỗ trợ.
 
-Káº¿t quáº£ quan sÃ¡t Ä‘Æ°á»£c cáº­p nháº­t trong `ADB_MULTI_SERVER_PROGRESS.md`; test pháº§n cá»©ng chÆ°a cháº¡y khÃ´ng
-Ä‘Æ°á»£c ghi PASS.
+Kết quả quan sát được cập nhật trong `ADB_MULTI_SERVER_PROGRESS.md`; test phần cứng chưa chạy không
+được ghi PASS.
 
 ## English
 
@@ -236,28 +236,28 @@ scrcpy -s SERIAL
 Windows MAIN/NODE servers listen on the configured LAN port. Restrict access with the included
 LocalSubnet firewall rule and never expose an unauthenticated ADB server to the public Internet.
 
-## ä¸­æ–‡
+## 中文
 
-DaoMai Multi-Server ADB å¯æŠŠæœ¬æœº Android è®¾å¤‡å’Œå¤šä¸ªå±€åŸŸç½‘ ADB èŠ‚ç‚¹ä¸Šçš„è®¾å¤‡èšåˆåˆ°ä¸€ä¸ªæ ‡å‡†
-ADB æœåŠ¡ä¸­ã€‚scrcpyã€Android Studioã€è‡ªåŠ¨åŒ–å·¥å…·ã€æ–‡ä»¶ä¼ è¾“å’Œ shell å¯ä»¥ç»§ç»­ä½¿ç”¨æ™®é€šåºåˆ—å·æˆ–
-è™šæ‹Ÿ transport IDï¼Œæ— éœ€ä¿®æ”¹å®¢æˆ·ç«¯åè®®ã€‚
+DaoMai Multi-Server ADB 可把本机 Android 设备和多个局域网 ADB 节点上的设备聚合到一个标准
+ADB 服务中。scrcpy、Android Studio、自动化工具、文件传输和 shell 可以继续使用普通序列号或
+虚拟 transport ID，无需修改客户端协议。
 
-### éƒ¨ç½²æ–¹å¼
+### 部署方式
 
-- NODEï¼šæ”¾ç½® `adb.exe` å’Œ DLLï¼Œä¸è¦åˆ›å»º `server.txt`ã€‚
-- MAINï¼šåœ¨ `adb.exe` åŒç›®å½•çš„ `server.txt` ä¸­ï¼Œæ¯è¡Œå¡«å†™ä¸€ä¸ª `HOST:PORT`ã€‚
-- NODE å¯é€‰ç”¨ `remote.txt` é™åˆ¶è¯¥è¿›ç¨‹å…è®¸ç®¡ç†çš„ USBã€TCP æˆ–æ¨¡æ‹Ÿå™¨åºåˆ—å·ã€‚
+- NODE：放置 `adb.exe` 和 DLL，不要创建 `server.txt`。
+- MAIN：在 `adb.exe` 同目录的 `server.txt` 中，每行填写一个 `HOST:PORT`。
+- NODE 可选用 `remote.txt` 限制该进程允许管理的 USB、TCP 或模拟器序列号。
 
 ```text
-# MAIN çš„ server.txt
+# MAIN 的 server.txt
 10.10.0.2:5037
 10.10.0.2:5038
 adb-node-01:5037
 ```
 
-é¡¹ç›®æ”¯æŒè®¾å¤‡åˆ—è¡¨ç¼“å­˜ä¸Žçƒ­æ›´æ–°ã€ç¨³å®šçš„é‡å¤åºåˆ—å·åˆ«åã€è™šæ‹Ÿ transport IDã€shellã€
-sync/push/pullã€é•¿æ—¶é—´äºŒè¿›åˆ¶æµã€track-devicesï¼Œä»¥åŠ scrcpy æ‰€éœ€çš„ MAIN æœ¬åœ°ç«¯å£è½¬å‘ä¸­ç»§ã€‚
-è¿œç¨‹æ•°æ®æµå…·å¤‡èƒŒåŽ‹æŽ§åˆ¶ï¼Œå¹¶ä¸”æ²¡æœ‰ç©ºé—²è¶…æ—¶ã€‚
+项目支持设备列表缓存与热更新、稳定的重复序列号别名、虚拟 transport ID、shell、
+sync/push/pull、长时间二进制流、track-devices，以及 scrcpy 所需的 MAIN 本地端口转发中继。
+远程数据流具备背压控制，并且没有空闲超时。
 
 ```powershell
 adb kill-server
@@ -266,5 +266,5 @@ adb -s SERIAL shell
 scrcpy -s SERIAL
 ```
 
-Windows ä¸Šçš„ MAIN/NODE ä¼šç›‘å¬é…ç½®çš„å±€åŸŸç½‘ç«¯å£ã€‚è¯·ä½¿ç”¨é¡¹ç›®æä¾›çš„ LocalSubnet é˜²ç«å¢™è§„åˆ™ï¼Œ
-ä¸è¦æŠŠæœªå—ä¿æŠ¤çš„ ADB æœåŠ¡æš´éœ²åˆ°å…¬ç½‘ã€‚
+Windows 上的 MAIN/NODE 会监听配置的局域网端口。请使用项目提供的 LocalSubnet 防火墙规则，
+不要把未受保护的 ADB 服务暴露到公网。
