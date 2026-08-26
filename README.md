@@ -56,9 +56,9 @@ adb devices
 adb devices -d
 ```
 
-The normal header includes `total`, direct MAIN `usb`, LAN/NODE `lan`, online `onl`, offline
-`off`, recovery `rec`, and all remaining states as `other`. `adb devices -d` groups devices under
-`May Hien Tai` for MAIN-local transports and under each configured NODE endpoint.
+`adb devices` keeps the standard ADB header. `adb devices -d` adds `total`, direct MAIN `usb`,
+LAN/NODE `lan`, online `onl`, offline `off`, recovery `rec`, and all remaining states as `other`,
+then groups devices under `May Hien Tai` for MAIN-local transports and each configured NODE.
 
 Khi server thực sự được spawn, output cho biết mode và mọi IPv4 LAN thực tế:
 
