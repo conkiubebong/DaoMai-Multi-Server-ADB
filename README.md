@@ -56,7 +56,7 @@ adb devices
 adb devices -d
 ```
 
-`adb devices` adds `total`, direct MAIN `usb`, LAN/NODE `lan`, online `onl`, offline `off`,
+`adb devices` adds `total`, physical USB `usb`, TCP/IP `lan`, online `onl`, offline `off`,
 recovery `rec`, and all remaining states as `other` to its header. `adb devices -d` shows the same
 summary, then groups devices under `May Hien Tai` for MAIN-local transports and each configured NODE.
 
