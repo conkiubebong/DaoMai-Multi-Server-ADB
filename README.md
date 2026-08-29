@@ -234,68 +234,6 @@ Source nằm tại `tools/daomai_adb_manager`. Đây là app C++ Win32 native, b
 - Grid hiển thị tổng theo endpoint và chi tiết serial/state/model.
 - Cấu hình UI lưu vào `manager_config.ini` cạnh EXE.
 
-## Build
-
-Tree build hiện dùng AOSP 14 AP2A và Windows host-cross:
-
-Chuẩn bị Ubuntu 22.04/24.04 (trên máy đã checkout đầy đủ AOSP):
-
-```bash
-sudo apt update
-sudo apt install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev \
-  libc6-dev-i386 lib32ncurses-dev lib32z1-dev libssl-dev libxml2-utils xsltproc unzip python3
-```
-
-```bash
-cd /media/daomai/DATA/android/AOSP_14_STOCK
-source build/envsetup.sh
-lunch aosp_x86_64-ap2a-eng
-m adb adb_test -j8
-```
-
-Build trên tree này tạo đồng thời Linux host và Windows host-cross:
-
-```text
-out/host/linux-x86/bin/adb
-out/host/linux-x86/nativetest64/adb_test/adb_test
-out/host/windows-x86/bin/adb.exe
-out/host/windows-x86/bin/DaoMaiAdbManager.exe   # không đóng gói từ v6.2.1
-```
-
-Chạy test và strip package Linux/Windows:
-
-```bash
-out/host/linux-x86/nativetest64/adb_test/adb_test \
-  --gtest_filter='RemoteServerProtocolTest.*:remote_server_config.*:remote_device_filter.*'
-prebuilts/clang/host/linux-x86/clang-r510928/bin/llvm-strip out/host/linux-x86/bin/adb
-prebuilts/clang/host/linux-x86/clang-r510928/bin/llvm-strip out/host/windows-x86/bin/adb.exe
-```
-
-Trên Ubuntu/Linux, chọn hoặc bỏ thư mục TXT dùng chung bằng bash:
-
-```bash
-export DAOMAI_ADB_TXT_PATH=/opt/daomai-adb/config
-./adb kill-server
-./adb devices
-
-unset DAOMAI_ADB_TXT_PATH
-./adb kill-server
-./adb devices
-```
-
-Muốn lưu vĩnh viễn, thêm dòng `export DAOMAI_ADB_TXT_PATH=...` vào `~/.profile` hoặc unit systemd
-chạy ADB. Biến phải có trong môi trường của process daemon lúc khởi động.
-
-Artifact debug `eng` có symbol nên lớn (khoảng 62 MiB Windows). Package phát hành phải strip:
-
-```bash
-prebuilts/clang/host/linux-x86/clang-r510928/bin/llvm-strip path/to/adb.exe
-prebuilts/clang/host/linux-x86/clang-r510928/bin/llvm-strip path/to/adb
-```
-
-Bản đã strip hiện khoảng 5.6 MiB Windows và 6.5 MiB Linux. Không strip DLL bằng cách tùy tiện nếu
-chưa kiểm tra PE exports.
-
 ## Test bắt buộc trước release final
 
 - NODE: local USB/TCP/emulator, shell, push/pull lớn, install, logcat, forward/reverse, scrcpy.
@@ -436,24 +374,6 @@ spaces. Recursive failures propagate to the outer exit code, so a failed child c
 silently omitted. Ordinary and DaoMai push/pull were verified with a 4,370,142,603-byte file inside
 a directory by checking file count, 64-bit size, and SHA-256 after both directions.
 
-### Building on Ubuntu
-
-Use an AOSP 14 checkout on Ubuntu 22.04/24.04, install the standard AOSP host build dependencies,
-then run:
-
-```bash
-source build/envsetup.sh
-lunch aosp_x86_64-ap2a-eng
-m adb adb_test -j8
-out/host/linux-x86/nativetest64/adb_test/adb_test \
-  --gtest_filter='RemoteServerProtocolTest.*:remote_server_config.*:remote_device_filter.*'
-```
-
-Linux ADB is produced at `out/host/linux-x86/bin/adb`; Windows host-cross ADB is produced at
-`out/host/windows-x86/bin/adb.exe`. Strip both with the AOSP `llvm-strip` before packaging. On
-Linux, use `export DAOMAI_ADB_TXT_PATH=/path/to/config` before starting the daemon and `unset
-DAOMAI_ADB_TXT_PATH` to restore executable-directory fallback.
-
 Windows MAIN/NODE servers listen on the configured LAN port. Restrict access with the included
 LocalSubnet firewall rule and never expose an unauthenticated ADB server to the public Internet.
 
@@ -535,23 +455,6 @@ raw；也可以用 `-z none|brotli|lz4|zstd` 或 `-Z` 强制指定。两个命�
 或为空时，ADB 会自动回退到可执行文件所在目录，因此旧配置保持兼容。Windows 用户可在目标
 配置目录运行 `save_path_txt.bat` 保存路径，运行 `remove_patch_txt.bat` 清除路径。修改路径后需
 重启 daemon；文件内容本身仍会按原方式热更新。
-
-### Ubuntu 编译
-
-在 Ubuntu 22.04/24.04 的完整 AOSP 14 源码树中安装标准 AOSP 编译依赖，然后执行：
-
-```bash
-source build/envsetup.sh
-lunch aosp_x86_64-ap2a-eng
-m adb adb_test -j8
-out/host/linux-x86/nativetest64/adb_test/adb_test \
-  --gtest_filter='RemoteServerProtocolTest.*:remote_server_config.*:remote_device_filter.*'
-```
-
-Linux 输出位于 `out/host/linux-x86/bin/adb`，Windows host-cross 输出位于
-`out/host/windows-x86/bin/adb.exe`；发布前请使用 AOSP 的 `llvm-strip`。Linux 上可在启动 daemon
-前执行 `export DAOMAI_ADB_TXT_PATH=/path/to/config`，执行 `unset DAOMAI_ADB_TXT_PATH` 后恢复到
-可执行文件目录 fallback。
 
 ### server.txt 与 remote.txt 详细用法
 
