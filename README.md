@@ -470,19 +470,38 @@ MAIN 模式已启用，但当前没有远程端点。
 
 Windows 上的 MAIN/NODE 会监听配置的局域网端口。请使用项目提供的 LocalSubnet 防火墙规则，
 不要把未受保护的 ADB 服务暴露到公网。
+## Lệnh DaoMai mới / New DaoMai commands / DaoMai 新命令 (v6.2.6)
 
-## Lệnh DaoMai mới (v6.2.6)
+### Tiếng Việt
 
 ```text
 adb -s SERIAL push-daomai LOCAL REMOTE
 adb -s SERIAL pull-daomai REMOTE LOCAL
 adb -s SERIAL push-daomai -z lz4 LOCAL REMOTE
 adb -s SERIAL push-daomai -Z LOCAL REMOTE
-adb -s SERIAL install-daomai FILE.apk
-adb -s SERIAL install-daomai FILE.apks
-adb -s SERIAL install-daomai FILE.apkm
-adb -s SERIAL install-daomai FILE.xapk
-adb -s SERIAL install-daomai FILE.mapk
+adb -s SERIAL install-daomai FILE.apk|FILE.apks|FILE.apkm|FILE.xapk|FILE.mapk
 ```
 
-`push-daomai`/`pull-daomai` tự chọn LZ4 hoặc raw; `-z lz4` ép nén và `-Z` ép raw. `install-daomai` tự giải nén và cài APK base cùng split APK cho APK, APKS, APKM, XAPK, MAPK.
+`push-daomai`/`pull-daomai` tự chọn LZ4 hoặc raw; `-z lz4` ép nén, `-Z` ép raw. `install-daomai` tự giải nén và cài APK base cùng split APK.
+
+### English
+
+```text
+adb -s SERIAL push-daomai LOCAL REMOTE
+adb -s SERIAL pull-daomai REMOTE LOCAL
+adb -s SERIAL push-daomai -z lz4 LOCAL REMOTE
+adb -s SERIAL push-daomai -Z LOCAL REMOTE
+adb -s SERIAL install-daomai FILE.apk|FILE.apks|FILE.apkm|FILE.xapk|FILE.mapk
+```
+
+`push-daomai`/`pull-daomai` automatically choose LZ4 or raw; `-z lz4` forces compression and `-Z` forces raw. `install-daomai` extracts multi-APK archives and installs the base APK with its split APKs.
+
+### 中文
+
+```text
+adb -s SERIAL push-daomai 本地文件 远程路径
+adb -s SERIAL pull-daomai 远程路径 本地文件
+adb -s SERIAL install-daomai 文件.apk|文件.apks|文件.apkm|文件.xapk|文件.mapk
+```
+
+`push-daomai`/`pull-daomai` 会自动选择 LZ4 或 raw；`-z lz4` 强制压缩，`-Z` 强制 raw。`install-daomai` 会自动解压多 APK 包，并同时安装 base APK 与 split APK。
