@@ -470,3 +470,19 @@ MAIN 模式已启用，但当前没有远程端点。
 
 Windows 上的 MAIN/NODE 会监听配置的局域网端口。请使用项目提供的 LocalSubnet 防火墙规则，
 不要把未受保护的 ADB 服务暴露到公网。
+
+## Lệnh DaoMai mới (v6.2.6)
+
+```text
+adb -s SERIAL push-daomai LOCAL REMOTE
+adb -s SERIAL pull-daomai REMOTE LOCAL
+adb -s SERIAL push-daomai -z lz4 LOCAL REMOTE
+adb -s SERIAL push-daomai -Z LOCAL REMOTE
+adb -s SERIAL install-daomai FILE.apk
+adb -s SERIAL install-daomai FILE.apks
+adb -s SERIAL install-daomai FILE.apkm
+adb -s SERIAL install-daomai FILE.xapk
+adb -s SERIAL install-daomai FILE.mapk
+```
+
+`push-daomai`/`pull-daomai` tự chọn LZ4 hoặc raw; `-z lz4` ép nén và `-Z` ép raw. `install-daomai` tự giải nén và cài APK base cùng split APK cho APK, APKS, APKM, XAPK, MAPK.
