@@ -1,7 +1,8 @@
 # DaoMai Multi-Server ADB
 
-> **v6.2.5: truyền file lớn hiệu năng cao.** Thêm `push-daomai`/`pull-daomai`, tự chọn LZ4 hoặc
-> raw fast path, hỗ trợ kích thước 64-bit và đã kiểm tra đồng thời trên toàn bộ device online.
+> **v6.3.0: chuyển NODE ↔ SERVER lúc chạy.** Ứng dụng bật/tắt gộp máy qua `host:daomai-set-servers`
+> không cần khởi động lại; relay MAIN→NODE báo `offline node:unreachable`, lỗi có tên node, keepalive.
+> Giữ nguyên `push-daomai`/`pull-daomai`/`install-daomai` và tương thích Xiaowei từ v6.2.6.
 
 [Tiếng Việt](#tiếng-việt) · [English](#english) · [中文](#中文)
 
@@ -505,3 +506,67 @@ adb -s SERIAL install-daomai 文件.apk|文件.apks|文件.apkm|文件.xapk|文�
 ```
 
 `push-daomai`/`pull-daomai` 会自动选择 LZ4 或 raw；`-z lz4` 强制压缩，`-Z` 强制 raw。`install-daomai` 会自动解压多 APK 包，并同时安装 base APK 与 split APK。
+## Chế độ NODE / SERVER lúc chạy / Runtime NODE ↔ SERVER switch / 运行时 NODE ↔ SERVER 切换 (v6.3.0)
+
+### Tiếng Việt
+
+Mọi adb DaoMai khởi động lên đều là **NODE** (nghe `0.0.0.0:PORT`). Ứng dụng có thể bật **SERVER**
+(gộp máy của các NODE khác) ngay trong daemon đang chạy, không khởi động lại, không cần `server.txt`:
+
+```text
+host:daomai-mode                               -> mode=server|node, source=runtime|file, path=<server.txt>, warning=..., rồi mỗi dòng một HOST:PORT
+host:daomai-set-servers:192.168.1.20:5037,192.168.1.21:5037   -> "server"; danh sách rỗng -> "node"
+host:daomai-clear-servers                      -> "file" (quay về đọc server.txt)
+```
+
+Gửi qua giao thức adb server (`<hex4 độ dài><chuỗi>` tới `127.0.0.1:PORT`). Entry sai định dạng hoặc
+trỏ tới chính server này bị từ chối bằng `FAIL` kèm lý do. `server.txt` vẫn hoạt động như cũ.
+
+Relay MAIN → NODE bền hơn: NODE không trả lời 2 vòng poll → máy của nó hiện `offline … node:unreachable`
+(đủ 10 vòng mới bỏ); mọi lỗi relay có tiền tố `[HOST:PORT]`; `connection closed by node` thay cho
+"read failed: Success"; keepalive TCP tới NODE; bắt tay tối đa 3 s + 4 s và không chặn lẫn nhau
+(4 kết nối đồng thời mỗi NODE); bỏ NODE khỏi danh sách thì gỡ ngay forward/listener của nó; giới hạn
+64 kết nối forward mở đồng thời; nâng `RLIMIT_NOFILE` khi khởi động (Linux). Máy của NODE vẫn cần
+`-s SERIAL` hoặc `-t ID` (lệnh không chọn máy chỉ xét máy cắm trực tiếp).
+
+### English
+
+Every DaoMai adb starts as a **NODE** (listening on `0.0.0.0:PORT`). An application can turn the
+running daemon into a **SERVER** (aggregating other NODEs) without a restart and without `server.txt`:
+
+```text
+host:daomai-mode                               -> mode=server|node, source=runtime|file, path=<server.txt>, warning=..., then one HOST:PORT per line
+host:daomai-set-servers:192.168.1.20:5037,192.168.1.21:5037   -> "server"; an empty list -> "node"
+host:daomai-clear-servers                      -> "file" (back to server.txt)
+```
+
+Send them with the adb server wire protocol (`<4 hex length><text>` to `127.0.0.1:PORT`). Malformed
+entries and entries that point at this server itself are rejected with `FAIL` and a reason.
+`server.txt` keeps working as before.
+
+Sturdier MAIN → NODE relay: a NODE that misses 2 polls shows its devices as `offline … node:unreachable`
+(dropped after 10); every relay error is prefixed with `[HOST:PORT]`; `connection closed by node`
+replaces "read failed: Success"; TCP keepalive to NODEs; handshake bounded to 3 s + 4 s with up to 4
+concurrent opens per NODE; removing a NODE drops its forward listeners at once; at most 64 forward
+connections in flight; `RLIMIT_NOFILE` is raised at start (Linux). NODE devices still need `-s SERIAL`
+or `-t ID` (implicit selection only looks at directly attached devices).
+
+### 中文
+
+每个 DaoMai adb 启动后都是 **NODE**（监听 `0.0.0.0:PORT`）。应用可以在不重启、不依赖 `server.txt`
+的情况下把正在运行的 daemon 切换为 **SERVER**（汇总其他 NODE 的设备）：
+
+```text
+host:daomai-mode                               -> mode=server|node, source=runtime|file, path=<server.txt>, warning=...，随后每行一个 HOST:PORT
+host:daomai-set-servers:192.168.1.20:5037,192.168.1.21:5037   -> "server"；空列表 -> "node"
+host:daomai-clear-servers                      -> "file"（恢复读取 server.txt）
+```
+
+通过 adb server 协议发送（向 `127.0.0.1:PORT` 发送 `<4 位十六进制长度><文本>`）。格式错误或指向本
+服务器自身的条目会以 `FAIL` 加原因拒绝。`server.txt` 仍按原方式工作。
+
+MAIN → NODE 中继更稳定：NODE 连续 2 次轮询无响应时其设备显示为 `offline … node:unreachable`（10 次后
+移除）；所有中继错误带 `[HOST:PORT]` 前缀；用 `connection closed by node` 替代 "read failed: Success"；
+对 NODE 启用 TCP keepalive；握手限制为 3 s + 4 s，每个 NODE 最多 4 个并发连接；移除 NODE 时立即
+清理其 forward 监听；同时最多 64 个 forward 连接；Linux 启动时提升 `RLIMIT_NOFILE`。NODE 的设备仍需
+`-s SERIAL` 或 `-t ID`（隐式选择只考虑直连设备）。
