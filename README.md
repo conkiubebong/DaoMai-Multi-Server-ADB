@@ -1,6 +1,6 @@
 # DaoMai Multi-Server ADB
 
-> **v6.3.0: chuyển NODE ↔ SERVER lúc chạy.** Ứng dụng bật/tắt gộp máy qua `host:daomai-set-servers`
+> **v6.4.0: cổng COM qua adb (Control Box P20/P30 ở PC NODE), driver CH340 nhúng sẵn.** v6.3.0: chuyển NODE ↔ SERVER lúc chạy. Ứng dụng bật/tắt gộp máy qua `host:daomai-set-servers`
 > không cần khởi động lại; relay MAIN→NODE báo `offline node:unreachable`, lỗi có tên node, keepalive.
 > Giữ nguyên `push-daomai`/`pull-daomai`/`install-daomai` và tương thích Xiaowei từ v6.2.6.
 
@@ -506,6 +506,44 @@ adb -s SERIAL install-daomai 文件.apk|文件.apks|文件.apkm|文件.xapk|文�
 ```
 
 `push-daomai`/`pull-daomai` 会自动选择 LZ4 或 raw；`-z lz4` 强制压缩，`-Z` 强制 raw。`install-daomai` 会自动解压多 APK 包，并同时安装 base APK 与 split APK。
+## Cổng COM qua adb / Serial ports over adb / 通过 adb 访问串口 (v6.4.0)
+
+### Tiếng Việt
+
+Hộp **Control Box A20/P20/P30** (CH340) cắm ở PC NODE điều khiển được từ PC khác: adb trên NODE mở cổng
+COM và bắc cầu byte qua socket adb; MAIN chuyển tiếp như các dịch vụ khác.
+
+```text
+host:daomai-serial-list                  -> "COM3\tUSB-SERIAL CH340\n…"; thêm "!\tCH340 (no driver)" khi chip CH34x
+                                            cắm vào nhưng chưa có driver (Windows)
+host:daomai-serial:COM3[:115200]         -> OKAY (host) rồi OKAY (đã mở cổng) / FAIL + lý do; sau đó là luồng byte thô
+host:daomai-serial-driver                -> Windows: cài driver WCH CH341SER 3.9.2024 (ký số, nhúng trong adb.exe) bằng
+                                            pnputil nâng quyền (UAC hiện trên máy đó); không có CH34x thiếu driver -> "skipped"
+host:daomai-node:<HOST:PORT>:<dịch vụ>   -> MAIN gọi một dịch vụ host của NODE trong danh sách, vd
+                                            host:daomai-node:192.168.1.20:5037:daomai-serial:COM3
+```
+
+Cổng chỉ mở khi có client giữ socket; client đóng, cổng bị rút hoặc lỗi đọc/ghi → đóng cả cổng lẫn socket ngay,
+adb không bao giờ giữ COM khi không dùng. Linux liệt kê `/dev/ttyUSB*`, `/dev/ttyACM*`.
+
+### English
+
+A **Control Box A20/P20/P30** (CH340) plugged into a NODE PC can be driven from another PC: adb on the NODE
+opens the COM port and bridges bytes over the adb socket; MAIN relays like any other service.
+`host:daomai-serial-list` (ports; `!\tCH340 (no driver)` flags a CH34x without driver), `host:daomai-serial:COM3[:baud]`
+(OKAY, then a second OKAY/FAIL status, then raw bytes), `host:daomai-serial-driver` (Windows: installs the embedded,
+signed WCH CH341SER 3.9.2024 package with elevated pnputil — UAC prompt on that PC; `skipped` when nothing needs it),
+`host:daomai-node:<HOST:PORT>:<service>` (MAIN → a NODE's host service). The port is held only while a client holds
+the socket; any error or close on either side closes both immediately.
+
+### 中文
+
+插在 NODE 电脑上的 **Control Box A20/P20/P30**（CH340）可从其他电脑控制：NODE 的 adb 打开 COM 口并通过 adb socket 转发字节，
+MAIN 像其他服务一样中继。`host:daomai-serial-list`（端口列表；`!\tCH340 (no driver)` 表示有 CH34x 但未装驱动）、
+`host:daomai-serial:COM3[:波特率]`（OKAY，再一个 OKAY/FAIL 状态，然后是原始字节流）、`host:daomai-serial-driver`
+（Windows：用提权 pnputil 安装内置的已签名 WCH CH341SER 3.9.2024 驱动，UAC 在该电脑弹出；无需安装时返回 `skipped`）、
+`host:daomai-node:<HOST:PORT>:<服务>`（MAIN 调用 NODE 的 host 服务）。只有客户端持有 socket 时端口才打开；任一侧出错或关闭都会立即关闭两者。
+
 ## Chế độ NODE / SERVER lúc chạy / Runtime NODE ↔ SERVER switch / 运行时 NODE ↔ SERVER 切换 (v6.3.0)
 
 ### Tiếng Việt
