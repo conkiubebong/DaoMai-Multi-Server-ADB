@@ -8,6 +8,7 @@
 | `host:daomai-serial:COM3[:115200]` | Cầu byte hai chiều tới cổng: sau `OKAY` của host, daemon gửi trạng thái thứ hai `OKAY` (đã mở) hoặc `FAIL` + lý do; từ đó socket là luồng byte thô |
 | `host:daomai-serial-driver` | Windows: cài gói driver WCH CH341SER 3.9.2024 (ký số, **nhúng trong adb.exe**) bằng `pnputil /add-driver … /install` chạy nâng quyền (UAC hiện trên máy đó). Không có CH34x nào thiếu driver → `skipped`, không bật UAC |
 | `host:daomai-node:<HOST:PORT>:<dịch vụ host>` | MAIN chuyển một dịch vụ host bất kỳ tới NODE trong danh sách (vd `daomai-node:192.168.1.20:5037:daomai-serial:COM3`), trả lời của NODE chuyển nguyên về client |
+| `host:daomai-viewing:<serial>:on|off` / `host:daomai-viewing` | SERVER đánh dấu máy nào nó đang xem (TTL 30 s, gọi lại mỗi ~10 s); NODE hỏi danh sách để tạm tắt scrcpy của chính nó cho máy đó — một encoder cho mỗi điện thoại thay vì hai (DaoMai View Phone, tab Đa PC) |
 
 ## Cách giữ cổng
 
