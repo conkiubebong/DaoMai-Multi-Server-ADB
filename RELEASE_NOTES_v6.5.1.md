@@ -34,7 +34,7 @@ emulator-5554@192.168.1.21        # nhiều dòng cho một serial được
 
 ## Khác
 
-- `adb version` → `kDaoMaiRebuildVersion = "6.5.0"`.
+- `adb version` → `kDaoMaiRebuildVersion = "6.5.1"`.
 - Mã mới `remote_share_config.{h,cpp}` + gtest `remote_share_config_test.cpp`; `adb_getpeername` trong
   sysdeps (Windows: qua lớp FH như `adb_getsockname`). Không thêm thư viện Windows.
 - `remote.txt`, `daomai-viewing`, relay MAIN ⇄ NODE giữ nguyên hành vi khi không có `share.txt`.
